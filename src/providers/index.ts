@@ -6,6 +6,7 @@ import { deepseekProviderRegistration } from './deepseek/registration';
 import { grokProviderRegistration } from './grok/registration';
 import { opencodeProviderRegistration } from './opencode/registration';
 import { piProviderRegistration } from './pi/registration';
+import { vibeProviderRegistration } from './vibe/registration';
 
 export const BUILT_IN_PROVIDER_MODULES = [
   antigravityProviderRegistration,
@@ -15,6 +16,7 @@ export const BUILT_IN_PROVIDER_MODULES = [
   grokProviderRegistration,
   opencodeProviderRegistration,
   piProviderRegistration,
+  vibeProviderRegistration,
 ] as const;
 
 registerProviderModules(BUILT_IN_PROVIDER_MODULES);

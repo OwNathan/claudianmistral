@@ -1186,6 +1186,12 @@
         "desc": "可選進階覆寫。留空時會盡可能從 WSL 工作區路徑推斷發行版，否則使用預設 WSL 發行版。"
       },
       "wslWindowsPath": "WSL 模式需要 Linux 命令或 Linux 絕對路徑，而不是 Windows 可執行檔路徑。"
+    },
+    "vibe": {
+      "environment": {
+        "name": "Mistral Vibe 環境變數",
+        "desc": "僅傳遞給 Mistral Vibe 的額外環境變數。"
+      }
     }
   }
 }

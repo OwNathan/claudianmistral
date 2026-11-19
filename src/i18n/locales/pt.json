@@ -1186,6 +1186,12 @@
         "desc": "Substituição avançada opcional. Deixe vazio para inferir a distro a partir de um caminho de workspace WSL quando possível; caso contrário, usa a distro WSL padrão."
       },
       "wslWindowsPath": "O modo WSL espera um comando Linux ou caminho absoluto Linux, não um caminho de executável do Windows."
+    },
+    "vibe": {
+      "environment": {
+        "name": "Variáveis de ambiente do Mistral Vibe",
+        "desc": "Variáveis de ambiente extras passadas apenas para o Mistral Vibe."
+      }
     }
   }
 }

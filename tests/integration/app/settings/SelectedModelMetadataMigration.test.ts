@@ -24,11 +24,13 @@ import { updateDeepSeekProviderSettings } from '@/providers/deepseek/settings';
 import { updateGrokProviderSettings } from '@/providers/grok/settings';
 import { updateOpencodeProviderSettings } from '@/providers/opencode/settings';
 import { updatePiProviderSettings } from '@/providers/pi/settings';
+import { updateVibeProviderSettings } from '@/providers/vibe/settings';
 
 const update = {
   deepseek: updateDeepSeekProviderSettings,
   claude: updateClaudeProviderSettings, codex: updateCodexProviderSettings,
   grok: updateGrokProviderSettings, opencode: updateOpencodeProviderSettings, pi: updatePiProviderSettings,
+  vibe: updateVibeProviderSettings,
 };
 
 /** A catalog store persisting selections through the settings document, as the migration sees them. */
@@ -259,6 +261,12 @@ it.each(cases)('$id detects missing effort fields in an otherwise present select
   if (id === 'deepseek') delete (config.discoveredModels as Array<Record<string, unknown>>)[0].reasoning;
   if (id === 'codex') delete (config.discoveredModels as Array<Record<string, unknown>>)[0].supportedReasoningEfforts;
   if (id === 'pi') delete (config.discoveredModels as Array<Record<string, unknown>>)[0].thinkingLevels;
+  if (id === 'vibe') {
+    // The pre-warm record shape: neither native thinking levels nor the warmed flag.
+    const rows = config.discoveredModels as Array<Record<string, unknown>>;
+    delete rows[0].thinkingLevels;
+    delete rows[0].reasoningMetadataResolved;
+  }
   expect(ProviderRegistry.getSettingsStorageAdapter(id).needsReasoningMetadata!(host.settings)).toBe(true);
 });
 
@@ -273,7 +281,7 @@ it.each(cases)('$id detects a selected model missing from the catalog despite re
   expect(ProviderRegistry.getSettingsStorageAdapter(id).needsReasoningMetadata!(host.settings)).toBe(true);
 });
 
-it.each(['claude', 'grok', 'opencode', 'pi'] as const)('%s retains confirmed non-reasoning metadata without querying on every reload', async id => {
+it.each(['claude', 'grok', 'opencode', 'pi', 'vibe'] as const)('%s retains confirmed non-reasoning metadata without querying on every reload', async id => {
   const { host, storage } = await makeHost();
   cases.find(entry => entry.id === id)!.populate(host.settings);
   const config = host.settings.providerConfigs[id]!;
@@ -283,6 +291,9 @@ it.each(['claude', 'grok', 'opencode', 'pi'] as const)('%s retains confirmed non
   });
   if (id === 'pi') Object.assign((config.discoveredModels as Array<Record<string, unknown>>)[0], {
     thinkingLevels: ['off'], reasoning: false,
+  });
+  if (id === 'vibe') Object.assign((config.discoveredModels as Array<Record<string, unknown>>)[0], {
+    thinkingLevels: [], reasoningMetadataResolved: true, reasoning: false,
   });
   if (id === 'opencode') config.thinkingOptionsByModel = { [selected]: [] };
   if (id === 'grok') writeGrokCatalog(host.settings, {

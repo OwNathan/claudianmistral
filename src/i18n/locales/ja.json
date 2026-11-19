@@ -1186,6 +1186,12 @@
         "desc": "任意の詳細上書き。空欄の場合、可能なら WSL ワークスペースパスから推測し、それ以外は既定の WSL ディストリビューションを使用します。"
       },
       "wslWindowsPath": "WSL モードでは Windows 実行ファイルパスではなく、Linux コマンドまたは Linux 絶対パスが必要です。"
+    },
+    "vibe": {
+      "environment": {
+        "name": "Mistral Vibe環境変数",
+        "desc": "Mistral Vibeにのみ渡される追加の環境変数。"
+      }
     }
   }
 }

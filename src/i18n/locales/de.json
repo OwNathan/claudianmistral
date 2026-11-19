@@ -1186,6 +1186,12 @@
         "desc": "Optionale erweiterte Überschreibung. Leer lassen, um die Distribution möglichst aus einem WSL-Workspace-Pfad abzuleiten, sonst wird die Standard-WSL-Distribution verwendet."
       },
       "wslWindowsPath": "Der WSL-Modus erwartet einen Linux-Befehl oder absoluten Linux-Pfad, keinen Windows-Programmpfad."
+    },
+    "vibe": {
+      "environment": {
+        "name": "Mistral-Vibe-Umgebungsvariablen",
+        "desc": "Zusätzliche Umgebungsvariablen, die nur an Mistral Vibe übergeben werden."
+      }
     }
   }
 }

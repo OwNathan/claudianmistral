@@ -5,6 +5,7 @@ import spawn from 'cross-spawn';
 
 import type { ProviderModelCatalog } from '@/core/providers/models/ProviderModelCatalog';
 import { ProviderModelUnavailableError } from '@/core/providers/models/ProviderModelUnavailableError';
+import type { ACPClientConnection } from '@/providers/acp';
 import { createClaudeModels } from '@/providers/claude/runtime/ClaudeModels';
 import { createCodexModels } from '@/providers/codex/runtime/CodexModels';
 import { createDeepSeekModels } from '@/providers/deepseek/runtime/DeepSeekModels';
@@ -12,6 +13,8 @@ import { createGrokModels } from '@/providers/grok/runtime/GrokModels';
 import { createOpencodeModels } from '@/providers/opencode/runtime/OpencodeModels';
 import { createPiModels } from '@/providers/pi/runtime/PiModels';
 import { getPiProviderSettings } from '@/providers/pi/settings';
+import type { VibeSharedRuntime } from '@/providers/vibe/execution/VibeSharedRuntime';
+import { createVibeModels } from '@/providers/vibe/runtime/VibeModels';
 
 vi.mock('cross-spawn', () => ({ default: vi.fn() }));
 
@@ -22,7 +25,43 @@ const browseOrders = {
   grok: ['selected', 'unselected-catalog-entry'],
   opencode: ['unselected-catalog-entry', 'anthropic/selected'],
   pi: ['pi:anthropic/unselected-catalog-entry', 'pi:anthropic/selected'],
+  vibe: ['vibe/selected', 'vibe/unselected-catalog-entry'],
 };
+
+/** One shared-runtime fake per Vibe model discovery; newSession counts its native queries. */
+function createVibeModelCatalogRuntime(): { runtime: VibeSharedRuntime; sessions: ACPClientConnection[] } {
+  const sessions: ACPClientConnection[] = [];
+  const client: ACPClientConnection = {
+    newSession: async () => {
+      sessions.push(client);
+      return {
+        sessionId: `vibe-discovery-${sessions.length}`,
+        configOptions: [{
+          id: 'model',
+          type: 'select',
+          currentValue: 'selected',
+          options: [
+            { value: 'selected', name: 'Selected label', description: 'Selected metadata' },
+            { value: 'unselected-catalog-entry', name: 'Unselected', description: '' },
+          ],
+        }],
+      };
+    },
+    closeSession: async () => ({}),
+  } as unknown as ACPClientConnection;
+  const owner = {
+    contextKey: 'test',
+    initialized: true,
+    initializeFlight: null,
+    native: { client },
+    shutdownFlight: null,
+  };
+  const runtime = {
+    acquire: async () => owner,
+    ensureInitialized: async () => undefined,
+  } as unknown as VibeSharedRuntime;
+  return { runtime, sessions };
+}
 
 it.each(modelCatalogCases)('$id keeps native selection, aliases and metadata behind the common catalog', async ({id, selected, populate, read}) => {
   const persist = vi.fn(async () => undefined);
@@ -32,6 +71,7 @@ it.each(modelCatalogCases)('$id keeps native selection, aliases and metadata beh
   const host = fixture.host.getRuntimeHost(id);
   const discovery = vi.fn(async () => ({ changed: true, refreshed: true, kind: 'completed' as const, catalog: null, models: [], persistedSettingsChanged: false }));
   const warmModelsMetadata = vi.fn(async () => true);
+  const vibeModelRuntime = id === 'vibe' ? createVibeModelCatalogRuntime() : null;
   const peers: PiNativeProcess[] = [];
   vi.mocked(spawn).mockImplementation(() => {
     const models = getPiProviderSettings(settings).discoveredModels.map(model => ({ ...model, name: model.label }));
@@ -52,6 +92,7 @@ it.each(modelCatalogCases)('$id keeps native selection, aliases and metadata beh
     grok: () => createGrokModels(host, { refresh: discovery }),
     opencode: () => createOpencodeModels(host, { discoverModels: discovery, warmModelsMetadata, observeCatalog: () => () => undefined }),
     pi: () => createPiModels(host),
+    vibe: () => createVibeModels(host, () => vibeModelRuntime?.runtime).catalog,
   };
   const catalog = factories[id]();
   const discoveredModels = structuredClone(read(settings));
@@ -61,7 +102,11 @@ it.each(modelCatalogCases)('$id keeps native selection, aliases and metadata beh
   expect(catalog.getSnapshot().defaultModelId).toBe(selectedId);
   expect(() => assertCatalogModelAvailable(id, host, selected)).not.toThrow();
   await catalog.refresh();
-  const discoveryCount = () => id === 'pi' ? peers.length : discovery.mock.calls.length;
+  const discoveryCount = () => id === 'pi'
+    ? peers.length
+    : id === 'vibe'
+      ? (vibeModelRuntime?.sessions.length ?? 0)
+      : discovery.mock.calls.length;
   const calls = discoveryCount();
   catalog.markStale();
   await catalog.refresh();

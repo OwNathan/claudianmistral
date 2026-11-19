@@ -1186,6 +1186,12 @@
         "desc": "Optional advanced override. Leave empty to infer the distro from a WSL workspace path when possible, otherwise use the default WSL distro."
       },
       "wslWindowsPath": "WSL mode expects a Linux command or Linux absolute path, not a Windows executable path."
+    },
+    "vibe": {
+      "environment": {
+        "name": "Mistral Vibe environment variables",
+        "desc": "Extra environment variables passed only to Mistral Vibe."
+      }
     }
   }
 }

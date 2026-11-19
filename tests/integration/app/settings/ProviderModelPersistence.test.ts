@@ -14,6 +14,7 @@ import { getDeepSeekProviderSettings } from '@/providers/deepseek/settings';
 import { getGrokProviderSettings } from '@/providers/grok/settings';
 import { getOpencodeProviderSettings } from '@/providers/opencode/settings';
 import { getPiProviderSettings } from '@/providers/pi/settings';
+import { getVibeProviderSettings } from '@/providers/vibe/settings';
 
 it.each(cases)('$id persists selected metadata without saving the available catalog', async ({ id, populate, read }) => {
   const settings = structuredClone(DEFAULT_CLAUDIAN_SETTINGS);
@@ -47,6 +48,7 @@ it.each(cases)('$id keeps an unavailable saved selection unchanged', ({ id: prov
   if (providerId === 'pi') current.visibleModels = ['pi:anthropic/missing-model'];
   if (providerId === 'grok') current.visibleModels = ['missing-model'];
   if (providerId === 'codex') current.visibleModels = ['missing-model'];
+  if (providerId === 'vibe') current.visibleModels = ['vibe/missing-model'];
   const decoded = {
     deepseek: getDeepSeekProviderSettings,
     claude: getClaudeProviderSettings,
@@ -54,6 +56,7 @@ it.each(cases)('$id keeps an unavailable saved selection unchanged', ({ id: prov
     grok: getGrokProviderSettings,
     opencode: getOpencodeProviderSettings,
     pi: getPiProviderSettings,
+    vibe: getVibeProviderSettings,
   }[providerId](settings);
   expect(decoded.visibleModels).toEqual(current.visibleModels);
   expect(settings.model).toBe(selected);

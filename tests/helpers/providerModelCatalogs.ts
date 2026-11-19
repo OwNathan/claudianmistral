@@ -14,6 +14,8 @@ import { assertOpencodeModelAvailable } from '@/providers/opencode/runtime/Openc
 import { getOpencodeProviderSettings, updateOpencodeProviderSettings } from '@/providers/opencode/settings';
 import { assertPiModelAvailable } from '@/providers/pi/runtime/PiModelAvailability';
 import { getPiProviderSettings, updatePiProviderSettings } from '@/providers/pi/settings';
+import { assertVibeModelAvailable } from '@/providers/vibe/runtime/VibeModelAvailability';
+import { getVibeProviderSettings, updateVibeProviderSettings } from '@/providers/vibe/settings';
 
 const availabilityGuards = {
   claude: assertClaudeModelAvailable,
@@ -22,6 +24,7 @@ const availabilityGuards = {
   grok: assertGrokModelAvailable,
   opencode: assertOpencodeModelAvailable,
   pi: assertPiModelAvailable,
+  vibe: assertVibeModelAvailable,
 };
 
 /** Runs a provider's execution-time model guard against a settings document. */
@@ -83,6 +86,16 @@ export const modelCatalogCases = [
       ] });
     },
     read: (settings: Record<string, unknown>) => getPiProviderSettings(settings).discoveredModels,
+  },
+  {
+    id: 'vibe' as const, selected: 'vibe/selected',
+    populate(settings: Record<string, unknown>) {
+      updateVibeProviderSettings(settings, { enabled: true, visibleModels: ['vibe/selected'], discoveredModels: [
+        { encodedId: 'vibe/selected', label: 'Selected label', rawId: 'selected', reasoning: true, thinkingLevels: ['off', 'high'] },
+        { encodedId: 'vibe/unselected-catalog-entry', label: 'Unselected', rawId: 'unselected-catalog-entry', reasoning: false, thinkingLevels: [] },
+      ] });
+    },
+    read: (settings: Record<string, unknown>) => getVibeProviderSettings(settings).discoveredModels,
   },
   {
     id: 'deepseek' as const, selected: 'deepseek:native/selected',

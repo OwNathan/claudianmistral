@@ -18,6 +18,7 @@ const titleCases = modelCatalogCases.map(provider => ({
     grok: ['selected', 'grok/selected'],
     opencode: ['anthropic/selected', 'opencode:anthropic/selected'],
     pi: ['anthropic/selected', 'pi:anthropic/selected'],
+    vibe: ['selected', 'vibe/selected'],
   }[provider.id],
 }));
 

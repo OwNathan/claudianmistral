@@ -264,6 +264,11 @@ const PROVIDER_DOCUMENT_WRAPPERS = new Set([
   'src/providers/pi/env/PiSettingsReconciler.ts',
   'src/providers/pi/runtime/PiCLIResolver.ts',
   'src/providers/pi/settings.ts',
+  'src/providers/vibe/VibeModelPolicy.ts',
+  'src/providers/vibe/app/VibeCommandLoader.ts',
+  'src/providers/vibe/env/VibeSettingsReconciler.ts',
+  'src/providers/vibe/runtime/VibeCLIResolver.ts',
+  'src/providers/vibe/settings.ts',
 ]);
 
 /**

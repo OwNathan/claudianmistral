@@ -56,6 +56,7 @@ function createSettings({ id, populate }: typeof modelCatalogCases[number], adve
   });
   if (id === 'deepseek') (config.discoveredModels as Array<Record<string, unknown>>)[0].reasoning = levels.map(id => ({ id, name: formatReasoningValueLabel(id) }));
   if (id === 'pi') (config.discoveredModels as Array<Record<string, unknown>>)[0].thinkingLevels = ['off', ...levels];
+  if (id === 'vibe') (config.discoveredModels as Array<Record<string, unknown>>)[0].thinkingLevels = [...levels];
   if (id === 'opencode') config.thinkingOptionsByModel = {
     'anthropic/selected': [{ value: 'default', label: 'Default' }, ...levels.map(value => ({ value, label: formatReasoningValueLabel(value) }))],
   };
